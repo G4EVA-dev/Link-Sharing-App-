@@ -28,7 +28,7 @@ function mobileNavBar() {
           height="20"
         />
       </Link>
-      <Link href="preview">
+      <Link href="preview" className="py-[11px] px-[16px] border border-btnpurple text-btnpurple rounded-[8px] " >
         <Image
           src="/images/mobileNav/eye.svg"
           alt="leye"

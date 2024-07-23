@@ -60,7 +60,7 @@ function Page() {
   return (
     <div className="min-h-screen flex flex-col">
       <MobileNavBar />
-      <main className="flex flex-1 items-center justify-center p-[16px] md:p-16">
+      <main className="flex flex-1 items-center justify-center md:p-16">
         <div className="w-[343px] mt-4 flex flex-col p-4 md:p-16">
           <div className="w-full p-6 flex flex-col items-startjustify-center rounded-[12px] ">
             <h1 className="text-[24px] font-bold leading-[36px]">
