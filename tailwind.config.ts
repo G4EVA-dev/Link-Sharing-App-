@@ -26,7 +26,12 @@ const config: Config = {
         linkSave: 'rgba(190, 173, 255, 1)',
         saveborder:'rgba(217, 217, 217, 1)',
         lightPurple: '#EFEBFF',
-        linkGray:'#737373'
+        linkGray:'#737373',
+        freeCodeCampColor: 'rgba(48, 34, 103, 1)',
+        youtubeColor: 'rgba(238, 57, 57, 1)',
+        linkedInColor: 'rgba(45, 104, 255, 1)',
+        devToColor: 'rgba(51, 51, 51, 1)',
+        codeWarColor: 'rgba(138, 26, 80, 1)',
       },
     },
   },

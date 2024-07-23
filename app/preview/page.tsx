@@ -5,14 +5,25 @@ import Image from "next/image";
 import { FaGithub, FaLinkedin, FaTwitter, FaFacebook, FaYoutube, FaFreeCodeCamp, FaDev, FaCode } from "react-icons/fa";
 
 const platformIcons = {
-  GitHub: <FaGithub />,
-  LinkedIn: <FaLinkedin />,
-  Twitter: <FaTwitter />,
-  Facebook: <FaFacebook />,
-  YouTube: <FaYoutube />,
-  freeCodeCamp: <FaFreeCodeCamp />,
-  "Dev.to": <FaDev />,
-  Codewars: <FaCode />,
+  GitHub: <FaGithub style={{color:'white'}} />,
+  LinkedIn: <FaLinkedin style={{color:'white'}} />,
+  Twitter: <FaTwitter style={{color:'white'}} />,
+  Facebook: <FaFacebook style={{color:'white'}} />,
+  YouTube: <FaYoutube style={{color:'white'}} />,
+  freeCodeCamp: <FaFreeCodeCamp style={{color:'white'}} />,
+  "Dev.to": <FaDev style={{color:'white'}} />,
+  Codewars: <FaCode style={{color:'white'}} />,
+};
+
+const platformColors = {
+  GitHub: 'bg-black',
+  LinkedIn: 'bg-linkedInColor',
+  Twitter: 'bg-blue-400',
+  Facebook: 'bg-blue-800',
+  YouTube: 'bg-youtubeColor',
+  freeCodeCamp: 'bg-freeCodeCampColor',
+  "Dev.to": 'bg-devToColor',
+  Codewars: 'bg-codeWarColor',
 };
 
 function PreviewPage() {
@@ -69,7 +80,7 @@ function PreviewPage() {
       <main className="w-full h-auto flex flex-col justify-center items-center gap-[56px]">
         <div className="w-[237px] flex flex-col justify-center items-center">
           <div className="flex flex-col justify-center items-center mb-[56px]">
-            <div className="rounded-full w-[104px] h-[104px] mb-[25px] border border-[4px] border-purple ">
+            <div className="rounded-full w-[104px] h-[104px] mb-[25px] border-[4px] border-purple ">
               {previewImage ? (
                 <img
                   src={previewImage}
@@ -100,10 +111,11 @@ function PreviewPage() {
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center gap-2 p-4 rounded-lg shadow-md bg-white hover:bg-gray-100 transition"
+                className={`w-full flex items-center gap-2 p-4 rounded-lg shadow-md text-white ${platformColors[link.platform]} hover:opacity-90 transition`}
               >
                 {platformIcons[link.platform]}
-                <span>{link.platform}</span>
+                <span className="mr-auto " >{link.platform}</span>
+                <Image src="/images/preview/mdi_arrow-right.svg" alt="Arrow" width="16" height="16" />
               </a>
             ))}
           </div>
@@ -114,6 +126,7 @@ function PreviewPage() {
 }
 
 export default PreviewPage;
+
 
 
 

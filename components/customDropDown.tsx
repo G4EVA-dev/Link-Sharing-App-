@@ -1,6 +1,15 @@
-"use client"
+"use client";
 import React, { useState } from "react";
-import { FaGithub, FaLinkedin, FaTwitter, FaFacebook, FaYoutube, FaFreeCodeCamp, FaDev, FaCode } from "react-icons/fa";
+import {
+  FaGithub,
+  FaLinkedin,
+  FaTwitter,
+  FaFacebook,
+  FaYoutube,
+  FaFreeCodeCamp,
+  FaDev,
+  FaCode,
+} from "react-icons/fa";
 
 const platformOptions = [
   { value: "GitHub", label: "GitHub", icon: <FaGithub /> },
@@ -57,4 +66,3 @@ function CustomDropdown({ value, onChange }) {
 }
 
 export default CustomDropdown;
-
