@@ -25,6 +25,7 @@ const config: Config = {
         btnpurple: 'rgba(99, 60, 255, 1)',
         linkSave: 'rgba(190, 173, 255, 1)',
         saveborder:'rgba(217, 217, 217, 1)',
+        lightPurple: '#EFEBFF',
       },
     },
   },
