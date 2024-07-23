@@ -70,9 +70,12 @@ function Login() {
               }}
             />
           </div>
-          <button className="py-[10px] bg-loginBtnBg text-white rounded-md mb-[24px] ">
+          <Link
+            href="/link"
+            className="py-[10px] flex justify-center items-center bg-loginBtnBg text-white rounded-md mb-[24px] "
+          >
             Login
-          </button>
+          </Link>
         </form>
 
         <div className="text-center md:flex md:justify-center md:items-center  ">

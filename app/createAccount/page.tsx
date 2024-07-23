@@ -89,9 +89,12 @@ function CreateAccount() {
               }}
             />
           </div>
-          <button className="py-[10px] bg-loginBtnBg text-white rounded-md mb-[24px] ">
-            Create Account
-          </button>
+          <Link
+            href="/login"
+            className="py-[10px] flex justify-center items-center bg-loginBtnBg text-white rounded-md mb-[24px] "
+          >
+            Create account
+          </Link>
         </form>
 
         <div className="text-center md:flex md:justify-center md:items-center  ">

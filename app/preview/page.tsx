@@ -1,7 +1,19 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { FaGithub, FaLinkedin, FaTwitter, FaFacebook, FaYoutube, FaFreeCodeCamp, FaDev, FaCode } from "react-icons/fa";
+
+const platformIcons = {
+  GitHub: <FaGithub />,
+  LinkedIn: <FaLinkedin />,
+  Twitter: <FaTwitter />,
+  Facebook: <FaFacebook />,
+  YouTube: <FaYoutube />,
+  freeCodeCamp: <FaFreeCodeCamp />,
+  "Dev.to": <FaDev />,
+  Codewars: <FaCode />,
+};
 
 function PreviewPage() {
   const [userDetails, setUserDetails] = useState({
@@ -10,16 +22,28 @@ function PreviewPage() {
     lastName: "",
     email: "",
     previewImage: null,
+    links: [],
   });
 
   useEffect(() => {
     const storedDetails = localStorage.getItem("userDetails");
+    const storedLinks = localStorage.getItem("userLinks");
     if (storedDetails) {
-      setUserDetails(JSON.parse(storedDetails));
+      setUserDetails((prevState) => ({
+        ...prevState,
+        ...JSON.parse(storedDetails),
+      }));
+    }
+    if (storedLinks) {
+      setUserDetails((prevState) => ({
+        ...prevState,
+        links: JSON.parse(storedLinks),
+      }));
     }
   }, []);
 
-  const { profileImage, firstName, lastName, email, previewImage } = userDetails;
+  const { profileImage, firstName, lastName, email, previewImage, links } =
+    userDetails;
 
   if (!profileImage && !firstName && !lastName && !email && !previewImage) {
     return <p>Loading...</p>;
@@ -29,13 +53,13 @@ function PreviewPage() {
     <div className="">
       <nav className="flex justify-around items-center py-[16px] pl-[24px] pr-[16px] mb-[60px]">
         <Link
-          href="/"
+          href="/link"
           className="py-[11px] px-[27px] border border-btnpurple text-btnpurple rounded-[8px] font-superbold"
         >
           Back to editor
         </Link>
         <Link
-          href="/"
+          href="#"
           className=" py-[11px] px-[27px] rounded-[8px] text-white bg-purple"
         >
           Share Link
@@ -47,7 +71,11 @@ function PreviewPage() {
           <div className="flex flex-col justify-center items-center mb-[56px]">
             <div className="rounded-full w-[104px] h-[104px] mb-[25px] border border-[4px] border-purple ">
               {previewImage ? (
-                <img src={previewImage} alt="Profile" className="w-[104px] h-[104px] rounded-full" />
+                <img
+                  src={previewImage}
+                  alt="Profile"
+                  className="w-[104px] h-[104px] rounded-full"
+                />
               ) : (
                 <Image
                   src="/images/preview/man.svg"
@@ -65,7 +93,20 @@ function PreviewPage() {
             </p>
           </div>
 
-          <div>Links</div>
+          <div className="w-full flex flex-col items-center gap-4">
+            {links.map((link, index) => (
+              <a
+                key={index}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center gap-2 p-4 rounded-lg shadow-md bg-white hover:bg-gray-100 transition"
+              >
+                {platformIcons[link.platform]}
+                <span>{link.platform}</span>
+              </a>
+            ))}
+          </div>
         </div>
       </main>
     </div>
@@ -73,10 +114,6 @@ function PreviewPage() {
 }
 
 export default PreviewPage;
-
-
-
-
 
 
 

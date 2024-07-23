@@ -61,7 +61,9 @@ function Page() {
               ) : (
                 <div
                   className="rounded-md w-[193px] h-[193px] flex flex-col bg-lightPurple items-center justify-center cursor-pointer"
-                  onClick={() => document.getElementById("profileImageInput").click()}
+                  onClick={() =>
+                    document.getElementById("profileImageInput").click()
+                  }
                 >
                   <Image
                     src="/images/profile/uploadImage.svg"
@@ -152,14 +154,6 @@ function Page() {
 }
 
 export default Page;
-
-
-
-
-
-
-
-
 
 // "use client";
 // import React, { useState } from "react";
@@ -283,12 +277,6 @@ export default Page;
 // }
 
 // export default Page;
-
-
-
-
-
-
 
 // import React from "react";
 // import MobileNavBar from "@/components/mobileNavBar";

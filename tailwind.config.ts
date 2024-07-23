@@ -26,6 +26,7 @@ const config: Config = {
         linkSave: 'rgba(190, 173, 255, 1)',
         saveborder:'rgba(217, 217, 217, 1)',
         lightPurple: '#EFEBFF',
+        linkGray:'#737373'
       },
     },
   },
