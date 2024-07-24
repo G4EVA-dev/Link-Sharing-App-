@@ -10,10 +10,33 @@ function Login() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [emailError, setEmailError] = useState<string>("");
+  const [passwordError, setPasswordError] = useState<string>("");
+
   const router = useRouter();
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Reset errors
+    setEmailError("");
+    setPasswordError("");
+
+    let valid = true;
+
+    if (email === "") {
+      setEmailError("Can't be empty");
+      valid = false;
+    }
+
+    if (password === "") {
+      setPasswordError("Please check again");
+      valid = false;
+    }
+
+    if (!valid) {
+      return;
+    }
 
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -22,7 +45,7 @@ function Login() {
         password
       );
       console.log(userCredential);
-      // Redirect to the dashboard or home page after successful login
+      // Redirect to the link page after successful login
       router.push("/link");
     } catch (error: any) {
       console.error(error);
@@ -61,7 +84,7 @@ function Login() {
         >
           <label
             htmlFor="email"
-            className="font-normal text-[12px] leading-[18px] text-darkGray mb-[4px]"
+            className={`font-normal text-[12px] leading-[18px] mb-[4px] ${emailError ? 'text-red-500' : 'text-darkGray'}`}
           >
             Email address
           </label>
@@ -70,7 +93,7 @@ function Login() {
               type="email"
               id="email"
               placeholder="e.g. alex@email.com"
-              className="pl-[44px] pr-[12px] py-[10px] border-[1px] border-inputBorder rounded-[8px] w-full focus:border-purple focus:shadow-custom-shadow    "
+              className={`pl-[44px] pr-[12px] py-[10px] border-[1px] rounded-[8px] w-full ${emailError ? 'border-red-500' : 'border-inputBorder'} focus:border-purple focus:shadow-custom-shadow`}
               style={{
                 backgroundImage: "url(/images/email-icon.svg)",
                 backgroundRepeat: "no-repeat",
@@ -82,10 +105,15 @@ function Login() {
                 setEmail(e.target.value)
               }
             />
+            {emailError && (
+              <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 text-[12px]">
+                {emailError}
+              </span>
+            )}
           </div>
           <label
             htmlFor="password"
-            className="font-normal text-[12px] leading-[18px] text-darkGray mb-[4px]"
+            className={`font-normal text-[12px] leading-[18px] mb-[4px] ${passwordError ? 'text-red-500' : 'text-darkGray'}`}
           >
             Password
           </label>
@@ -94,7 +122,7 @@ function Login() {
               type="password"
               id="password"
               placeholder="Enter your password"
-              className="pl-[44px] pr-[12px] py-[10px] border-[1px] border-inputBorder rounded-[8px] w-full mb-[24px] focus:border-purple focus:shadow-custom-shadow"
+              className={`pl-[44px] pr-[12px] py-[10px] border-[1px] rounded-[8px] w-full ${passwordError ? 'border-red-500' : 'border-inputBorder'} focus:border-purple focus:shadow-custom-shadow`}
               style={{
                 backgroundImage: "url(/images/password-icon.svg)",
                 backgroundRepeat: "no-repeat",
@@ -106,6 +134,11 @@ function Login() {
                 setPassword(e.target.value)
               }
             />
+            {passwordError && (
+              <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 text-[12px]">
+                {passwordError}
+              </span>
+            )}
           </div>
           {error && <p className="text-red-500">{error}</p>}
           <button
