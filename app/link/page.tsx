@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import MobileNavBar from "@/components/mobileNavBar";
 import CustomDropdown from "@/components/customDropDown";
+import TabletNavBar from "@/components/tabletNavBar";
+import PhonePreview from "@/components/phoneView";
 
 interface LinkType {
   platform: string;
@@ -36,14 +38,19 @@ function Page() {
 
   const handleSave = () => {
     localStorage.setItem("userLinks", JSON.stringify(links));
-    alert("Links saved successfully!");
+    // alert("Links saved successfully!");
   };
 
   return (
     <div className="min-h-screen flex flex-col">
       <MobileNavBar />
-      <main className="flex flex-1 items-center justify-center p-4 md:p-16">
-        <div className="w-full max-w-md flex flex-col p-4 bg-white rounded-lg shadow-md md:max-w-2xl">
+      <TabletNavBar />
+      <main className="flex flex-1 items-center justify-center p-4 md:p-16 lg:gap-[24px] ">
+        <div className="hidden lg:block ">
+          <PhonePreview />
+        </div>
+
+        <div className="w-full max-w-md flex flex-col p-4 bg-white rounded-lg shadow-md md:max-w-2xl lg:w-full ">
           <div className="w-full p-6 flex flex-col items-start justify-center rounded-lg">
             <h1 className="text-2xl font-bold leading-9 mb-4">
               Customize your links
@@ -80,7 +87,9 @@ function Page() {
                   </label>
                   <CustomDropdown
                     value={link.platform}
-                    onChange={(value: string) => handlePlatformChange(index, value)}
+                    onChange={(value: string) =>
+                      handlePlatformChange(index, value)
+                    }
                   />
                 </div>
                 <div className="flex flex-col gap-2">

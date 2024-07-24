@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import MobileNavBar from "@/components/previewNavBar/mobileView";
+import TabletNavBar from "@/components/previewNavBar/tabletView";
 import {
   FaGithub,
   FaLinkedin,
@@ -78,7 +80,8 @@ function PreviewPage() {
     }
   }, []);
 
-  const { profileImage, firstName, lastName, email, previewImage, links } = userDetails;
+  const { profileImage, firstName, lastName, email, previewImage, links } =
+    userDetails;
 
   if (!profileImage && !firstName && !lastName && !email && !previewImage) {
     return <p>Loading...</p>;
@@ -86,22 +89,14 @@ function PreviewPage() {
 
   return (
     <div className="">
-      <nav className="flex justify-around items-center py-[16px] pl-[24px] pr-[16px] mb-[60px]">
-        <Link
-          href="/link"
-          className="py-[11px] px-[27px] border border-btnpurple text-btnpurple rounded-[8px] font-superbold"
-        >
-          Back to editor
-        </Link>
-        <Link
-          href="#"
-          className=" py-[11px] px-[27px] rounded-[8px] text-white bg-purple"
-        >
-          Share Link
-        </Link>
-      </nav>
+      <MobileNavBar />
+      <div className="md:w-[768px] md:height-[357px] bg-purple  ">
+        <TabletNavBar />
+      </div>
 
       <main className="w-full h-auto flex flex-col justify-center items-center gap-[56px]">
+        
+
         <div className="w-[237px] flex flex-col justify-center items-center">
           <div className="flex flex-col justify-center items-center mb-[56px]">
             <div className="rounded-full w-[104px] h-[104px] mb-[25px] border-[4px] border-purple ">
@@ -157,14 +152,6 @@ function PreviewPage() {
 }
 
 export default PreviewPage;
-
-
-
-
-
-
-
-
 
 // import React from "react";
 // import Link from "next/link";

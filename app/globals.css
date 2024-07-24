@@ -1,3 +1,31 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.custom-top-border {
+  position: relative;
+}
+
+.custom-top-border::before {
+  content: '';
+  position: absolute;
+  top: 8px; /* Adjust as needed to align with the border */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40%; /* Adjust the width as needed */
+  height: 30px; /* Adjust the height as needed */
+  background: white;
+  border-top: none; /* Adjust the border width and color as needed */
+  border-left: 1px solid #737373; /* Adjust the border width and color as needed */
+  border-right: 1px solid #737373; /* Adjust the border width and color as needed */
+  border-bottom: 1px solid #737373; /* Ensure no bottom border */
+  border-bottom-left-radius: 25px;
+  border-bottom-right-radius: 25px;
+
+}
+
+.top-notch {
+  clip-path: polygon(0% 0%, 15% 0%, 15% 60%, 85% 60%, 85% 0%, 100% 0%, 100% 100%, 0% 100%);
+}
+
+

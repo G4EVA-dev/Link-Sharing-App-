@@ -32,6 +32,8 @@ const config: Config = {
         linkedInColor: 'rgba(45, 104, 255, 1)',
         devToColor: 'rgba(51, 51, 51, 1)',
         codeWarColor: 'rgba(138, 26, 80, 1)',
+        profileDetails: 'rgba(115, 115, 115, 1)',
+        phoneViewBorder: 'rgba(115, 115, 115, 1)',
       },
     },
   },
