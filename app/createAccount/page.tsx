@@ -76,7 +76,7 @@ function CreateAccount() {
               type="email"
               id="email"
               placeholder="e.g. alex@email.com"
-              className="pl-[44px] pr-[12px] py-[10px] border border-black rounded-md w-full"
+              className="pl-[44px] pr-[12px] py-[10px] border border-black rounded-md w-full focus:border-purple focus:shadow-custom-shadow "
               style={{
                 backgroundImage: "url(/images/email-icon.svg)",
                 backgroundRepeat: "no-repeat",
@@ -100,7 +100,7 @@ function CreateAccount() {
               type="password"
               id="password"
               placeholder="At least 8 characters"
-              className="pl-[44px] pr-[12px] py-[10px] border border-black rounded-md w-full"
+              className="pl-[44px] pr-[12px] py-[10px] border border-black rounded-md w-full focus:border-purple focus:shadow-custom-shadow "
               style={{
                 backgroundImage: "url(/images/password-icon.svg)",
                 backgroundRepeat: "no-repeat",
@@ -124,7 +124,7 @@ function CreateAccount() {
               type="password"
               id="confirm-password"
               placeholder="At least 8 characters"
-              className="pl-[44px] pr-[12px] py-[10px] border border-black rounded-md w-full"
+              className="pl-[44px] pr-[12px] py-[10px] border border-black rounded-md w-full focus:border-purple focus:shadow-custom-shadow "
               style={{
                 backgroundImage: "url(/images/password-icon.svg)",
                 backgroundRepeat: "no-repeat",
@@ -140,7 +140,7 @@ function CreateAccount() {
           {error && <p className="text-red-500">{error}</p>}
           <button
             type="submit"
-            className="py-[10px] flex justify-center items-center bg-loginBtnBg text-white rounded-md mb-[24px]"
+            className="py-[10px] flex justify-center font-semibold items-center bg-loginBtnBg text-white rounded-md mb-[24px] hover:bg-buttonHover hover:shadow-custom-shadow "
           >
             Create account
           </button>

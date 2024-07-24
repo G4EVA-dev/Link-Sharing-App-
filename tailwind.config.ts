@@ -34,6 +34,10 @@ const config: Config = {
         codeWarColor: 'rgba(138, 26, 80, 1)',
         profileDetails: 'rgba(115, 115, 115, 1)',
         phoneViewBorder: 'rgba(115, 115, 115, 1)',
+        buttonHover: '#BEADFF',
+      },
+      boxShadow: {
+        'custom-shadow': '0px 0px 32px 0px rgba(99, 60, 255, 0.25)',
       },
     },
   },
