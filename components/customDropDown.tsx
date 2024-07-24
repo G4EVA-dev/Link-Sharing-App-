@@ -22,10 +22,22 @@ const platformOptions = [
   { value: "Codewars", label: "Codewars", icon: <FaCode /> },
 ];
 
-function CustomDropdown({ value, onChange }) {
+// Define types for option and props
+interface Option {
+  value: string;
+  label: string;
+  icon: JSX.Element;
+}
+
+interface CustomDropdownProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+function CustomDropdown({ value, onChange }: CustomDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleSelect = (option) => {
+  const handleSelect = (option: Option) => {
     onChange(option.value);
     setIsOpen(false);
   };

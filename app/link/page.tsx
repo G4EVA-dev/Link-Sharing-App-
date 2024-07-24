@@ -1,29 +1,33 @@
 "use client";
 import React, { useState } from "react";
 import MobileNavBar from "@/components/mobileNavBar";
-import Image from "next/image";
 import CustomDropdown from "@/components/customDropDown";
 
+interface LinkType {
+  platform: string;
+  url: string;
+}
+
 function Page() {
-  const [links, setLinks] = useState([{ platform: "", url: "" }]);
+  const [links, setLinks] = useState<LinkType[]>([{ platform: "", url: "" }]);
 
   const handleAddLink = () => {
     setLinks([...links, { platform: "", url: "" }]);
   };
 
-  const handleRemoveLink = (index) => {
+  const handleRemoveLink = (index: number) => {
     const updatedLinks = links.filter((_, i) => i !== index);
     setLinks(updatedLinks);
   };
 
-  const handlePlatformChange = (index, value) => {
+  const handlePlatformChange = (index: number, value: string) => {
     const updatedLinks = links.map((link, i) =>
       i === index ? { ...link, platform: value } : link
     );
     setLinks(updatedLinks);
   };
 
-  const handleUrlChange = (index, value) => {
+  const handleUrlChange = (index: number, value: string) => {
     const updatedLinks = links.map((link, i) =>
       i === index ? { ...link, url: value } : link
     );
@@ -76,7 +80,7 @@ function Page() {
                   </label>
                   <CustomDropdown
                     value={link.platform}
-                    onChange={(value) => handlePlatformChange(index, value)}
+                    onChange={(value: string) => handlePlatformChange(index, value)}
                   />
                 </div>
                 <div className="flex flex-col gap-2">
