@@ -11,12 +11,34 @@ function CreateAccount() {
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [emailError, setEmailError] = useState<string>("");
+  const [passwordError, setPasswordError] = useState<string>("");
+
   const router = useRouter();
 
   const handleSignUp = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
+
+    // Reset errors
+    setEmailError("");
+    setPasswordError("");
+
+    let valid = true;
+
+    if (email === "") {
+      setEmailError("Can't be empty");
+      valid = false;
+    }
+
+    if (password === "") {
+      setPasswordError("Please check again");
+      valid = false;
+    } else if (password !== confirmPassword) {
       setError("Passwords do not match");
+      return;
+    }
+
+    if (!valid) {
       return;
     }
 
@@ -27,10 +49,9 @@ function CreateAccount() {
         password
       );
       console.log(userCredential);
-      // Redirect to login page or dashboard after successful sign up
+      // Redirect to login page after successful sign up
       router.push("/login");
     } catch (error: any) {
-      // Use `any` to access error properties
       console.error(error);
       setError(error.message);
     }
@@ -67,7 +88,7 @@ function CreateAccount() {
         >
           <label
             htmlFor="email"
-            className="font-normal text-[12px] leading-[18px] text-darkGray mb-[4px]"
+            className={`font-normal text-[12px] leading-[18px] mb-[4px] ${emailError ? 'text-red-500' : 'text-darkGray'}`}
           >
             Email address
           </label>
@@ -76,7 +97,7 @@ function CreateAccount() {
               type="email"
               id="email"
               placeholder="e.g. alex@email.com"
-              className="pl-[44px] pr-[12px] py-[10px] border border-black rounded-md w-full focus:border-purple focus:shadow-custom-shadow "
+              className={`pl-[44px] pr-[12px] py-[10px] border-[1px] rounded-[8px] w-full ${emailError ? 'border-red-500' : 'border-black'} focus:border-purple focus:shadow-custom-shadow`}
               style={{
                 backgroundImage: "url(/images/email-icon.svg)",
                 backgroundRepeat: "no-repeat",
@@ -88,10 +109,15 @@ function CreateAccount() {
                 setEmail(e.target.value)
               }
             />
+            {emailError && (
+              <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 text-[12px]">
+                {emailError}
+              </span>
+            )}
           </div>
           <label
             htmlFor="password"
-            className="font-normal text-[12px] leading-[18px] text-darkGray mb-[4px]"
+            className={`font-normal text-[12px] leading-[18px] mb-[4px] ${passwordError ? 'text-red-500' : 'text-darkGray'}`}
           >
             Password
           </label>
@@ -100,7 +126,7 @@ function CreateAccount() {
               type="password"
               id="password"
               placeholder="At least 8 characters"
-              className="pl-[44px] pr-[12px] py-[10px] border border-black rounded-md w-full focus:border-purple focus:shadow-custom-shadow "
+              className={`pl-[44px] pr-[12px] py-[10px] border-[1px] rounded-[8px] w-full ${passwordError ? 'border-red-500' : 'border-black'} focus:border-purple focus:shadow-custom-shadow`}
               style={{
                 backgroundImage: "url(/images/password-icon.svg)",
                 backgroundRepeat: "no-repeat",
@@ -112,6 +138,11 @@ function CreateAccount() {
                 setPassword(e.target.value)
               }
             />
+            {passwordError && (
+              <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 text-[12px]">
+                {passwordError}
+              </span>
+            )}
           </div>
           <label
             htmlFor="confirm-password"
