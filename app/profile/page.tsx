@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, ChangeEvent } from "react";
 import MobileNavBar from "@/components/mobileNavBar";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -7,21 +7,25 @@ import TabletNavBar from "@/components/tabletNavBar";
 import PhonePreview from "@/components/phoneView";
 
 function Page() {
-  const [profileImage, setProfileImage] = useState(null);
-  const [previewImage, setPreviewImage] = useState(null);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
   const router = useRouter();
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
     setProfileImage(file);
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviewImage(reader.result);
-    };
-    reader.readAsDataURL(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === "string") {
+          setPreviewImage(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSave = () => {
@@ -71,7 +75,7 @@ function Page() {
                   <div
                     className="rounded-md w-[193px] h-[193px] flex flex-col bg-lightPurple items-center justify-center cursor-pointer"
                     onClick={() =>
-                      document.getElementById("profileImageInput").click()
+                      document.getElementById("profileImageInput")?.click()
                     }
                   >
                     <Image
@@ -165,6 +169,7 @@ function Page() {
 }
 
 export default Page;
+
 
 // "use client";
 // import React, { useState } from "react";

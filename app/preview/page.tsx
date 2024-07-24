@@ -101,9 +101,11 @@ function PreviewPage() {
           <div className="flex flex-col justify-center items-center mb-[56px]">
             <div className="rounded-full w-[104px] h-[104px] mb-[25px] border-[4px] border-purple ">
               {previewImage ? (
-                <img
+                <Image
                   src={previewImage}
                   alt="Profile"
+                  width="104"
+                  height="104"
                   className="w-[104px] h-[104px] rounded-full"
                 />
               ) : (
