@@ -35,6 +35,7 @@ const config: Config = {
         profileDetails: 'rgba(115, 115, 115, 1)',
         phoneViewBorder: 'rgba(115, 115, 115, 1)',
         buttonHover: '#BEADFF',
+        bgBrown: 'rgba(51, 51, 51, 1)',
       },
       boxShadow: {
         'custom-shadow': '0px 0px 32px 0px rgba(99, 60, 255, 0.25)',

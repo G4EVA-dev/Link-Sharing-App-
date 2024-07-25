@@ -82,7 +82,7 @@ const PhonePreview: React.FC = () => {
     !profileImage && !firstName && !lastName && !email && links.length === 0;
 
   return (
-    <div className="w-[560px] flex justify-center items-center">
+    <div className="bg-white w-[560px] h-full flex justify-center items-center">
       <div className="w-[308px] h-[632px] border-[1px] border-phoneViewBorder rounded-[53.5px] flex justify-center items-center custom-top-border">
         <div className="w-[286px] h-[612px] p-4 border-[1px] border-phoneViewBorder rounded-[44.5px] ">
           <div className="relative flex justify-center items-center flex-col">

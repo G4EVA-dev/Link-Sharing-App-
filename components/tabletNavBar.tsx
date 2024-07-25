@@ -4,8 +4,8 @@ import Link from "next/link";
 
 const TabletNavBar: React.FC = () => {
   return (
-    <nav className="hidden md:block lg:p-[24px] bg-white p-[24px] ">
-      <div className="flex justify-between items-center py-[16px] pl-[24px] pr-[24px] ">
+    <nav className="hidden md:block lg:p-[24px]  p-[24px]  ">
+      <div className="bg-white  flex justify-between items-center py-[16px] pl-[24px] pr-[24px] rounded-[12px] ">
         <div className="flex items-center justify-center gap-[6px] ">
           <Image
             src="/images/mobileNav/logo.svg"

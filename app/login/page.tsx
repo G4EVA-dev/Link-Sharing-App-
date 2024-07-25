@@ -54,7 +54,7 @@ function Login() {
   };
 
   return (
-    <div className="p-[32px] md:bg-bgColor flex flex-col items-start md:justify-center md:items-center h-screen">
+    <div className="bg-bgColor p-[32px] md:bg-bgColor flex flex-col items-start md:justify-center md:items-center h-screen">
       <div className="flex gap-[10px] mb-[64px] md:mb-[51px]">
         <Image
           src="/images/Vector.svg"

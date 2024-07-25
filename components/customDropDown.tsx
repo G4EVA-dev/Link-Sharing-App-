@@ -47,10 +47,10 @@ function CustomDropdown({ value, onChange }: CustomDropdownProps) {
   );
 
   return (
-    <div className="relative">
+    <div className="relative  ">
       <button
         type="button"
-        className="w-full flex justify-between items-center py-2 px-3 border border-gray-300 rounded-md"
+        className="w-full flex justify-between items-center py-2 px-3 border border-gray-300 rounded-md focus:border-purple focus:outline-none focus:shadow-custom-shadow "
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className="flex items-center gap-2">
