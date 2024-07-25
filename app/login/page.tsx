@@ -93,7 +93,7 @@ function Login() {
               type="email"
               id="email"
               placeholder="e.g. alex@email.com"
-              className={`pl-[44px] pr-[12px] py-[10px] border-[1px] rounded-[8px] w-full ${emailError ? 'border-red-500' : 'border-inputBorder'} focus:border-purple focus:shadow-custom-shadow`}
+              className={`pl-[44px] pr-[12px] py-[10px] border-[1px] rounded-[8px] w-full ${emailError ? 'border-red-500' : 'border-inputBorder'} focus:border-purple focus:outline-none focus:shadow-custom-shadow`}
               style={{
                 backgroundImage: "url(/images/email-icon.svg)",
                 backgroundRepeat: "no-repeat",
@@ -122,7 +122,7 @@ function Login() {
               type="password"
               id="password"
               placeholder="Enter your password"
-              className={`pl-[44px] pr-[12px] py-[10px] border-[1px] rounded-[8px] w-full ${passwordError ? 'border-red-500' : 'border-inputBorder'} focus:border-purple focus:shadow-custom-shadow`}
+              className={`pl-[44px] pr-[12px] py-[10px] border-[1px] rounded-[8px] w-full ${passwordError ? 'border-red-500' : 'border-inputBorder'} focus:border-purple focus:outline-none focus:shadow-custom-shadow`}
               style={{
                 backgroundImage: "url(/images/password-icon.svg)",
                 backgroundRepeat: "no-repeat",

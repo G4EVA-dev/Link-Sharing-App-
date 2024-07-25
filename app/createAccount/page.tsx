@@ -88,7 +88,9 @@ function CreateAccount() {
         >
           <label
             htmlFor="email"
-            className={`font-normal text-[12px] leading-[18px] mb-[4px] ${emailError ? 'text-red-500' : 'text-darkGray'}`}
+            className={`font-normal text-[12px] leading-[18px] mb-[4px] ${
+              emailError ? "text-red-500" : "text-darkGray"
+            }`}
           >
             Email address
           </label>
@@ -97,7 +99,9 @@ function CreateAccount() {
               type="email"
               id="email"
               placeholder="e.g. alex@email.com"
-              className={`pl-[44px] pr-[12px] py-[10px] border-[1px] rounded-[8px] w-full ${emailError ? 'border-red-500' : 'border-black'} focus:border-purple focus:shadow-custom-shadow`}
+              className={`pl-[44px] pr-[12px] py-[10px] border-[1px] rounded-[8px] w-full ${
+                emailError ? "border-red-500" : "border-inputBorder"
+              } focus:border-purple focus:outline-none focus:shadow-custom-shadow`}
               style={{
                 backgroundImage: "url(/images/email-icon.svg)",
                 backgroundRepeat: "no-repeat",
@@ -117,7 +121,9 @@ function CreateAccount() {
           </div>
           <label
             htmlFor="password"
-            className={`font-normal text-[12px] leading-[18px] mb-[4px] ${passwordError ? 'text-red-500' : 'text-darkGray'}`}
+            className={`font-normal text-[12px] leading-[18px] mb-[4px] ${
+              passwordError ? "text-red-500" : "text-darkGray"
+            }`}
           >
             Password
           </label>
@@ -126,7 +132,9 @@ function CreateAccount() {
               type="password"
               id="password"
               placeholder="At least 8 characters"
-              className={`pl-[44px] pr-[12px] py-[10px] border-[1px] rounded-[8px] w-full ${passwordError ? 'border-red-500' : 'border-black'} focus:border-purple focus:shadow-custom-shadow`}
+              className={`pl-[44px] pr-[12px] py-[10px] border-[1px] rounded-[8px] w-full ${
+                passwordError ? "border-red-500" : "border-inputBorder"
+              } focus:border-purple focus:outline-none focus:shadow-custom-shadow`}
               style={{
                 backgroundImage: "url(/images/password-icon.svg)",
                 backgroundRepeat: "no-repeat",
@@ -155,7 +163,7 @@ function CreateAccount() {
               type="password"
               id="confirm-password"
               placeholder="At least 8 characters"
-              className="pl-[44px] pr-[12px] py-[10px] border border-black rounded-md w-full focus:border-purple focus:shadow-custom-shadow "
+              className="pl-[44px] pr-[12px] py-[10px] border border-inputBorder rounded-md w-full focus:border-purple focus:outline-none focus:shadow-custom-shadow "
               style={{
                 backgroundImage: "url(/images/password-icon.svg)",
                 backgroundRepeat: "no-repeat",
