@@ -2,9 +2,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState, FormEvent, ChangeEvent } from "react";
+import React, { useState, FormEvent, ChangeEvent, useEffect } from "react";
 import { auth } from "@/firebase"; // Adjust the import based on your file structure
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 
 function Login() {
   const [email, setEmail] = useState<string>("");
@@ -14,6 +14,17 @@ function Login() {
   const [passwordError, setPasswordError] = useState<string>("");
 
   const router = useRouter();
+
+  // Check authentication status on component mount
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.push("/link"); // Redirect to another page if already logged in
+      }
+    });
+
+    return () => unsubscribe(); // Cleanup subscription on unmount
+  }, [router]);
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -165,3 +176,4 @@ function Login() {
 }
 
 export default Login;
+
