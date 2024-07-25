@@ -53,7 +53,7 @@ interface UserDetailsType {
   links: LinkType[];
 }
 
-function PreviewPage() {
+const PreviewPage: React.FC = () => {
   const [userDetails, setUserDetails] = useState<UserDetailsType>({
     profileImage: null,
     firstName: "",
@@ -95,8 +95,6 @@ function PreviewPage() {
       </div>
 
       <main className="w-full h-auto flex flex-col justify-center items-center gap-[56px]">
-        
-
         <div className="w-[237px] flex flex-col justify-center items-center">
           <div className="flex flex-col justify-center items-center mb-[56px]">
             <div className="rounded-full w-[104px] h-[104px] mb-[25px] border-[4px] border-purple ">
@@ -151,7 +149,7 @@ function PreviewPage() {
       </main>
     </div>
   );
-}
+};
 
 export default PreviewPage;
 

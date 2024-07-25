@@ -46,6 +46,7 @@ interface UserDetailsType {
   firstName: string;
   lastName: string;
   email: string;
+  previewImage: string | null;
   links: LinkType[];
 }
 
@@ -55,6 +56,7 @@ const PhonePreview: React.FC = () => {
     firstName: "",
     lastName: "",
     email: "",
+    previewImage: null,
     links: [],
   });
 
@@ -75,11 +77,11 @@ const PhonePreview: React.FC = () => {
     }
   }, []);
 
-  const { profileImage, firstName, lastName, email, links } = userDetails;
+  const { profileImage, firstName, lastName, email,previewImage,  links } = userDetails;
 
   // Determine whether to show skeleton or actual content
   const isLoading =
-    !profileImage && !firstName && !lastName && !email && links.length === 0;
+    !profileImage && !firstName && !lastName && !email && !previewImage && links.length === 0;
 
   return (
     <div className="bg-white w-[560px] h-full flex justify-center items-center">
@@ -99,10 +101,12 @@ const PhonePreview: React.FC = () => {
               </>
             ) : (
               <>
-                {profileImage ? (
+                {previewImage ? (
                   <Image
-                    src={profileImage}
+                    src={previewImage}
+                    width="96" height="96"
                     alt="Profile Preview"
+
                     className="rounded-full w-[96px] h-[96px] object-cover mt-[34px]"
                   />
                 ) : (
