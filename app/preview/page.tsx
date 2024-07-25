@@ -89,14 +89,21 @@ const PreviewPage: React.FC = () => {
 
   return (
     <div className="">
-      <MobileNavBar />
-      <div className="md:w-[768px] md:height-[357px] bg-purple  ">
+      <div className="block md:hidden">
+        <MobileNavBar />
+      </div>
+      <div className="hidden md:block fixed top-0 w-full z-20">
         <TabletNavBar />
       </div>
 
-      <main className="w-full h-auto flex flex-col justify-center items-center gap-[56px]">
-        <div className="w-[237px] flex flex-col justify-center items-center">
-          <div className="flex flex-col justify-center items-center mb-[56px]">
+      {/* Purple background for tablet and desktop views */}
+      <div className="hidden md:block absolute top-0 left-0 w-full h-[357px] rounded-bl-[32px] rounded-br-[32px] bg-purple z-10"></div>
+
+      <main className="bg-bgColor w-full h-auto mt-[60px] md:mt-[102px] flex flex-col justify-center items-center gap-[56px] relative">
+        
+
+        <div className="relative w-[237px] lg:w-[349px] md:bg-white lg:rounded-[24px] flex flex-col justify-center items-center md:mt-24 z-20 md:p-[24px]  ">
+          <div className="lg:w-[257px] flex flex-col justify-center items-center ">
             <div className="rounded-full w-[104px] h-[104px] mb-[25px] border-[4px] border-purple ">
               {previewImage ? (
                 <Image
@@ -135,7 +142,7 @@ const PreviewPage: React.FC = () => {
                 } hover:opacity-90 transition`}
               >
                 {platformIcons[link.platform]}
-                <span className="mr-auto ">{link.platform}</span>
+                <span className="mr-auto">{link.platform}</span>
                 <Image
                   src="/images/preview/mdi_arrow-right.svg"
                   alt="Arrow"
@@ -152,6 +159,7 @@ const PreviewPage: React.FC = () => {
 };
 
 export default PreviewPage;
+
 
 // import React from "react";
 // import Link from "next/link";
