@@ -10,6 +10,7 @@ import { FiPlus, FiTrash2, FiEdit2, FiEye, FiLink, FiSettings, FiBarChart2, FiEx
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { useRouter } from 'next/navigation';
 import { usernameService } from '@/services/usernameService';
+import Image from 'next/image';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -591,24 +592,26 @@ export default function Dashboard() {
 
               <div className="text-center mb-8">
                 {previewProfile.profileImage && (
-                  <img
-                    src={previewProfile.profileImage}
-                    alt={previewProfile.title}
-                    className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
-                  />
+                  <div className="relative w-24 h-24 mx-auto mb-4">
+                    <Image
+                      src={previewProfile.profileImage}
+                      alt={previewProfile.title}
+                      fill
+                      className="rounded-full object-cover"
+                    />
+                  </div>
                 )}
                 <h1 className="text-2xl font-bold mb-2">{previewProfile.title}</h1>
                 {previewProfile.description && (
                   <p className="text-lg opacity-80">{previewProfile.description}</p>
                 )}
               </div>
-
               <div className="space-y-4">
-                {previewProfile.socialLinks.map((link) => (
+                {previewProfile.socialLinks.map((link: { id: string; title: string }) => (
                   <div
                     key={link.id}
                     className={`p-4 rounded-lg ${
-                      previewProfile.theme === 'dark' 
+                      previewProfile.theme === 'dark'
                         ? 'bg-gray-800' 
                         : 'bg-gray-50'
                     }`}

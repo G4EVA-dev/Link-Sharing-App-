@@ -39,7 +39,10 @@ function Page() {
 
   const loadLinks = async () => {
     if (!user) return;
-    
+
+  useEffect(() => {
+    loadLinks();
+  }, []);
     setIsLoading(true);
     setError("");
     try {
@@ -68,6 +71,9 @@ function Page() {
       url: "",
       userId: user.id,
       order: links.length,
+      title: "",
+      clicks: 0,
+      isActive: true,
       createdAt: new Date(),
       updatedAt: new Date()
     };

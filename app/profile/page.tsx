@@ -41,6 +41,26 @@ function Page() {
 
   const handleImageSelect = (file: File | null) => {
     setProfileImage(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewImage(null);
+    }
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: string
+  ) => {
+    const { value } = e.target;
+    if (field === "firstName") setFirstName(value);
+    if (field === "lastName") setLastName(value);
+    if (field === "email") setEmail(value);
+    setErrors({ ...errors, [field]: "" });
   };
 
   const handleSave = async () => {
@@ -59,20 +79,15 @@ function Page() {
     if (Object.keys(formErrors).length === 0) {
       setIsSaving(true);
       try {
-        // Here you would typically upload the image to your storage service
-        // and save the user details to your database
-      const userDetails = {
-        profileImage,
-        firstName,
-        lastName,
-        email,
-        previewImage,
-      };
+        const userDetails = {
+          profileImage,
+          firstName,
+          lastName,
+          email,
+          previewImage,
+        };
         
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-      localStorage.setItem("userDetails", JSON.stringify(userDetails));
+        localStorage.setItem("userDetails", JSON.stringify(userDetails));
         showToast("Profile updated successfully!", "success");
       } catch (err: any) {
         showToast(err.message || "Failed to update profile", "error");
@@ -81,21 +96,6 @@ function Page() {
       }
     }
   };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: string
-  ) => {
-    const { value } = e.target;
-    if (field === "firstName") setFirstName(value);
-    if (field === "lastName") setLastName(value);
-    if (field === "email") setEmail(value);
-    setErrors({ ...errors, [field]: "" });
-  };
-
-  useEffect(() => {
-    loadLinks();
-  }, []);
 
   const loadLinks = async () => {
     setIsLoading(true);
@@ -122,8 +122,13 @@ function Page() {
     }
   };
 
+  useEffect(() => {
+    loadLinks();
+  }, []);
+
   const showToast = (message: string, type: ToastType) => {
     setToast({ show: true, message, type });
+    setTimeout(() => setToast({ ...toast, show: false }), 3000);
   };
 
   if (isLoading) {
@@ -137,9 +142,9 @@ function Page() {
   return (
     <ErrorBoundary>
       <div className="bg-bgColor h-full flex flex-col relative">
-      <MobileNavBar />
-      <TabletNavBar />
-      <main className="p-[16px] lg:flex lg:gap-[24px]">
+        <MobileNavBar />
+        <TabletNavBar />
+        <main className="p-[16px] lg:flex lg:gap-[24px]">
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -155,10 +160,10 @@ function Page() {
           >
             <h1 className="text-[24px] md:text-[32px] font-bold leading-[36px] md:leading-[48px] mb-[16px]">
               Profile Details
-          </h1>
-          <p className="text-[16px] text-linkPageCustomizeText font-normal leading-[24px] mb-[40px]">
-            Add your details to create a personal touch to your profile.
-          </p>
+            </h1>
+            <p className="text-[16px] text-linkPageCustomizeText font-normal leading-[24px] mb-[40px]">
+              Add your details to create a personal touch to your profile.
+            </p>
 
             {error && (
               <motion.div 
@@ -185,59 +190,59 @@ function Page() {
                 <label className="text-[12px] text-linkPageCustomizeText font-normal leading-[18px] flex items-center gap-2">
                   <FaUser className="text-purple" />
                   First name*
-              </label>
-              <input
-                type="text"
+                </label>
+                <input
+                  type="text"
                   placeholder="Enter your first name"
-                value={firstName}
-                onChange={(e) => handleInputChange(e, "firstName")}
+                  value={firstName}
+                  onChange={(e) => handleInputChange(e, "firstName")}
                   className={`py-2 px-3 border rounded-md focus:outline-none focus:shadow-custom-shadow transition-all duration-200 ${
                     errors.firstName ? 'border-red-500' : 'border-gray-300'
                   }`}
-              />
-              {errors.firstName && (
+                />
+                {errors.firstName && (
                   <motion.p
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="text-red-500 text-sm"
                   >
-                  {errors.firstName}
+                    {errors.firstName}
                   </motion.p>
-              )}
-            </div>
+                )}
+              </div>
 
               <div className="flex flex-col gap-2">
                 <label className="text-[12px] text-linkPageCustomizeText font-normal leading-[18px] flex items-center gap-2">
                   <FaUser className="text-purple" />
                   Last name*
-              </label>
-              <input
-                type="text"
+                </label>
+                <input
+                  type="text"
                   placeholder="Enter your last name"
-                value={lastName}
-                onChange={(e) => handleInputChange(e, "lastName")}
+                  value={lastName}
+                  onChange={(e) => handleInputChange(e, "lastName")}
                   className={`py-2 px-3 border rounded-md focus:outline-none focus:shadow-custom-shadow transition-all duration-200 ${
                     errors.lastName ? 'border-red-500' : 'border-gray-300'
                   }`}
-              />
-              {errors.lastName && (
+                />
+                {errors.lastName && (
                   <motion.p
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="text-red-500 text-sm"
                   >
-                  {errors.lastName}
+                    {errors.lastName}
                   </motion.p>
-              )}
-            </div>
+                )}
+              </div>
 
               <div className="flex flex-col gap-2">
                 <label className="text-[12px] text-linkPageCustomizeText font-normal leading-[18px] flex items-center gap-2">
                   <FaEnvelope className="text-purple" />
-                Email
-              </label>
-              <input
-                type="email"
+                  Email
+                </label>
+                <input
+                  type="email"
                   placeholder="Enter your email"
                   className="py-2 px-3 border border-gray-300 rounded-md focus:outline-none focus:shadow-custom-shadow bg-gray-50"
                   value={authService.getCurrentUser()?.email || ""}
@@ -250,7 +255,7 @@ function Page() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-              onClick={handleSave}
+                onClick={handleSave}
                 disabled={isSaving}
                 className={`bg-purple w-full md:w-auto py-[11px] px-[27px] rounded-md text-white font-semibold transition-all duration-200 ${
                   isSaving ? 'opacity-75 cursor-not-allowed' : 'hover:bg-buttonHover hover:shadow-custom-shadow'
@@ -260,14 +265,14 @@ function Page() {
                   <div className="flex items-center gap-2">
                     <LoadingSpinner size="small" />
                     <span>Saving...</span>
-          </div>
+                  </div>
                 ) : (
                   'Save'
                 )}
               </motion.button>
-        </div>
+            </div>
           </motion.div>
-      </main>
+        </main>
 
         <AnimatePresence>
           {toast.show && (
@@ -276,9 +281,9 @@ function Page() {
               type={toast.type}
               onClose={() => setToast({ ...toast, show: false })}
             />
-      )}
+          )}
         </AnimatePresence>
-    </div>
+      </div>
     </ErrorBoundary>
   );
 }

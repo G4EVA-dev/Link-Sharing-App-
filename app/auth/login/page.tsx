@@ -95,7 +95,10 @@ function Page() {
         animate={{ opacity: 1, y: 0 }}
         className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md"
       >
-        <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+          <p className="text-gray-600">Sign in to your account to continue</p>
+        </div>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -165,7 +168,7 @@ function Page() {
           </motion.button>
 
           <p className="text-sm text-gray-600">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
