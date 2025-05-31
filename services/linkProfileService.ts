@@ -30,7 +30,7 @@ class LinkProfileService {
         theme: data.theme || 'light',
         socialLinks: data.socialLinks || [],
         isActive: true,
-        username: data.username?.toLowerCase().trim(),
+        username: data.username?.toLowerCase().trim() || '',
         analytics: {
           views: 0,
           clicks: 0
