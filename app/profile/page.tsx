@@ -1,10 +1,25 @@
 "use client";
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, useEffect } from "react";
 import MobileNavBar from "@/components/mobileNavBar";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import TabletNavBar from "@/components/tabletNavBar";
 import PhonePreview from "@/components/phoneView";
+import { authService } from "@/services/authService";
+import { linkService } from "@/services/linkService";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { Link } from "@/types";
+import Toast, { ToastType } from "@/components/Toast";
+import ImageUpload from "@/components/ImageUpload";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaUser, FaEnvelope } from "react-icons/fa";
+
+interface ToastState {
+  show: boolean;
+  message: string;
+  type: ToastType;
+}
 
 function Page() {
   const [profileImage, setProfileImage] = useState<File | null>(null);
@@ -13,41 +28,39 @@ function Page() {
   const [lastName, setLastName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [links, setLinks] = useState<Link[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [toast, setToast] = useState<ToastState>({
+    show: false,
+    message: "",
+    type: "info"
+  });
   const router = useRouter();
 
-  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
+  const handleImageSelect = (file: File | null) => {
     setProfileImage(file);
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === "string") {
-          setPreviewImage(reader.result);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     let formErrors: { [key: string]: string } = {};
 
     if (!firstName) {
-      formErrors.firstName = "can't be empty";
+      formErrors.firstName = "First name is required";
     }
 
     if (!lastName) {
-      formErrors.lastName = "can't be empty";
-    }
-
-    if (!email) {
-      formErrors.email = "can't be empty";
+      formErrors.lastName = "Last name is required";
     }
 
     setErrors(formErrors);
 
     if (Object.keys(formErrors).length === 0) {
+      setIsSaving(true);
+      try {
+        // Here you would typically upload the image to your storage service
+        // and save the user details to your database
       const userDetails = {
         profileImage,
         firstName,
@@ -55,14 +68,22 @@ function Page() {
         email,
         previewImage,
       };
+        
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
       localStorage.setItem("userDetails", JSON.stringify(userDetails));
-      setToastMessage("Profile saved successfully!");
-      setTimeout(() => setToastMessage(null), 3000);
+        showToast("Profile updated successfully!", "success");
+      } catch (err: any) {
+        showToast(err.message || "Failed to update profile", "error");
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 
   const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement>,
     field: string
   ) => {
     const { value } = e.target;
@@ -72,160 +93,193 @@ function Page() {
     setErrors({ ...errors, [field]: "" });
   };
 
+  useEffect(() => {
+    loadLinks();
+  }, []);
+
+  const loadLinks = async () => {
+    setIsLoading(true);
+    setError("");
+    try {
+      const user = authService.getCurrentUser();
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
+      const response = await linkService.getUserLinks(user.id);
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      if (response.data) {
+        setLinks(response.data);
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to load links");
+      showToast(err.message || "Failed to load links", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const showToast = (message: string, type: ToastType) => {
+    setToast({ show: true, message, type });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="large" />
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-bgColor flex flex-col relative">
+    <ErrorBoundary>
+      <div className="bg-bgColor h-full flex flex-col relative">
       <MobileNavBar />
       <TabletNavBar />
       <main className="p-[16px] lg:flex lg:gap-[24px]">
-        <div className="hidden lg:block">
-          <PhonePreview />
-        </div>
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="hidden lg:block"
+          >
+            <PhonePreview links={links} isLoading={isLoading} />
+          </motion.div>
 
-        <div className="bg-white p-[24px] lg:w-full lg:p-[40px]">
-          <h1 className="text-[24px] md:text-[32px] font-bold leading-[36px] md:leading-[48px]">
-            Product Details
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white p-[24px] lg:w-full lg:p-[40px] rounded-lg shadow-lg"
+          >
+            <h1 className="text-[24px] md:text-[32px] font-bold leading-[36px] md:leading-[48px] mb-[16px]">
+              Profile Details
           </h1>
           <p className="text-[16px] text-linkPageCustomizeText font-normal leading-[24px] mb-[40px]">
             Add your details to create a personal touch to your profile.
           </p>
 
-          <div className="p-[20px] bg-bgColor mb-[24px] md:flex md:items-center md:justify-center">
-            <div className="md:mr-auto">
-              <p className="text-[16px] text-linkPageCustomizeText font-normal leading-[24px] mb-[40px]">
-                Profile picture
-              </p>
-            </div>
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 p-3 bg-red-100 text-red-700 rounded-md"
+              >
+                {error}
+              </motion.div>
+            )}
 
-            <div className="md:flex md:items-center md:justify-center md:gap-[24px]">
-              <div className="profilePicture mb-[16px]">
-                {previewImage ? (
-                  <Image
-                    src={previewImage}
-                    alt="Profile Preview"
-                    width="104"
-                    height="104"
-                    className="rounded-full w-[104px] h-[104px] object-cover"
-                  />
-                ) : (
-                  <div
-                    className="rounded-md w-[193px] h-[193px] flex flex-col bg-lightPurple items-center justify-center cursor-pointer"
-                    onClick={() =>
-                      document.getElementById("profileImageInput")?.click()
-                    }
-                  >
-                    <Image
-                      src="/images/profile/uploadImage.svg"
-                      alt="Upload Image"
-                      width="40"
-                      height="40"
-                    />
-                    <p className="uploadTheImage text-purple">+ Upload Image</p>
-                  </div>
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  id="profileImageInput"
-                  onChange={handleImageUpload}
-                  className="hidden"
+            <div className="space-y-6">
+              <div className="flex flex-col gap-2">
+                <label className="text-[12px] text-linkPageCustomizeText font-normal leading-[18px]">
+                  Profile picture
+                </label>
+                <ImageUpload
+                  onImageSelect={handleImageSelect}
+                  currentImage={previewImage}
                 />
               </div>
 
-              <p className="md:w-[127px] text-[12px] text-linkPageCustomizeText font-normal leading-[18px] mb-[40px]">
-                Image must be below 1024x1024px. Use PNG or JPG format.
-              </p>
-            </div>
-          </div>
-
-          <form action="" className="p-5 bg-bgColor w-full mb-[25px]">
-            <div className="flex flex-col gap-1 mb-3 md:flex-row relative">
-              <label
-                htmlFor="firstName"
-                className="text-[12px] md:leading-[24px] md:text-[16px] text-linkPageCustomizeText font-normal leading-[18px] md:mr-auto"
-              >
-                First Name*
+              <div className="flex flex-col gap-2">
+                <label className="text-[12px] text-linkPageCustomizeText font-normal leading-[18px] flex items-center gap-2">
+                  <FaUser className="text-purple" />
+                  First name*
               </label>
               <input
                 type="text"
-                id="firstName"
-                className={`py-[12px] px-[16px] border ${
-                  errors.firstName ? "border-red-500" : "border-gray-300"
-                } rounded-md md:w-[344px] focus:border-purple focus:outline-none focus:shadow-custom-shadow`}
-                placeholder="Ben"
+                  placeholder="Enter your first name"
                 value={firstName}
                 onChange={(e) => handleInputChange(e, "firstName")}
+                  className={`py-2 px-3 border rounded-md focus:outline-none focus:shadow-custom-shadow transition-all duration-200 ${
+                    errors.firstName ? 'border-red-500' : 'border-gray-300'
+                  }`}
               />
               {errors.firstName && (
-                <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 text-[12px]">
+                  <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-red-500 text-sm"
+                  >
                   {errors.firstName}
-                </span>
+                  </motion.p>
               )}
             </div>
-            <div className="flex flex-col gap-1 mb-3 md:flex-row relative">
-              <label
-                htmlFor="lastName"
-                className="text-[12px] text-linkPageCustomizeText font-normal leading-[18px] md:leading-[24px] md:text-[16px] md:mr-auto"
-              >
-                Last Name*
+
+              <div className="flex flex-col gap-2">
+                <label className="text-[12px] text-linkPageCustomizeText font-normal leading-[18px] flex items-center gap-2">
+                  <FaUser className="text-purple" />
+                  Last name*
               </label>
               <input
                 type="text"
-                id="lastName"
-                className={`py-[12px] px-[16px] border ${
-                  errors.lastName ? "border-red-500" : "border-gray-300"
-                } rounded-md md:w-[344px] focus:border-purple focus:outline-none focus:shadow-custom-shadow`}
-                placeholder="Wright"
+                  placeholder="Enter your last name"
                 value={lastName}
                 onChange={(e) => handleInputChange(e, "lastName")}
+                  className={`py-2 px-3 border rounded-md focus:outline-none focus:shadow-custom-shadow transition-all duration-200 ${
+                    errors.lastName ? 'border-red-500' : 'border-gray-300'
+                  }`}
               />
               {errors.lastName && (
-                <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 text-[12px]">
+                  <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-red-500 text-sm"
+                  >
                   {errors.lastName}
-                </span>
+                  </motion.p>
               )}
             </div>
-            <div className="flex flex-col gap-1 mb-3 md:flex-row relative">
-              <label
-                htmlFor="email"
-                className="text-[12px] text-linkPageCustomizeText font-normal leading-[18px] md:leading-[24px] md:text-[16px] md:mr-auto"
-              >
+
+              <div className="flex flex-col gap-2">
+                <label className="text-[12px] text-linkPageCustomizeText font-normal leading-[18px] flex items-center gap-2">
+                  <FaEnvelope className="text-purple" />
                 Email
               </label>
               <input
                 type="email"
-                id="email"
-                className={`py-[12px] px-[16px] border ${
-                  errors.email ? "border-red-500" : "border-gray-300"
-                } rounded-md md:w-[344px] focus:border-purple focus:outline-none focus:shadow-custom-shadow`}
-                placeholder="ben@example.com"
-                value={email}
-                onChange={(e) => handleInputChange(e, "email")}
-              />
-              {errors.email && (
-                <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 text-[12px]">
-                  {errors.email}
-                </span>
-              )}
+                  placeholder="Enter your email"
+                  className="py-2 px-3 border border-gray-300 rounded-md focus:outline-none focus:shadow-custom-shadow bg-gray-50"
+                  value={authService.getCurrentUser()?.email || ""}
+                  disabled
+                />
+              </div>
             </div>
-          </form>
 
-          <div className="p-[16px] border-t border-t-1 border-saveborder md:flex md:justify-end">
-            <button
-              type="button"
-              className="w-full font-semibold py-[11px] px-[27px] bg-purple text-white rounded-md md:w-auto hover:bg-buttonHover hover:shadow-custom-shadow"
+            <div className="p-[16px] border-t border-t-1 md:flex md:justify-end border-saveborder mt-6">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               onClick={handleSave}
-            >
-              Save
-            </button>
+                disabled={isSaving}
+                className={`bg-purple w-full md:w-auto py-[11px] px-[27px] rounded-md text-white font-semibold transition-all duration-200 ${
+                  isSaving ? 'opacity-75 cursor-not-allowed' : 'hover:bg-buttonHover hover:shadow-custom-shadow'
+                }`}
+              >
+                {isSaving ? (
+                  <div className="flex items-center gap-2">
+                    <LoadingSpinner size="small" />
+                    <span>Saving...</span>
           </div>
+                ) : (
+                  'Save'
+                )}
+              </motion.button>
         </div>
+          </motion.div>
       </main>
-      {toastMessage && (
-        <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-bgBrown text-white py-2 px-4 rounded-md shadow-lg">
-          {toastMessage}
-        </div>
+
+        <AnimatePresence>
+          {toast.show && (
+            <Toast
+              message={toast.message}
+              type={toast.type}
+              onClose={() => setToast({ ...toast, show: false })}
+            />
       )}
+        </AnimatePresence>
     </div>
+    </ErrorBoundary>
   );
 }
 

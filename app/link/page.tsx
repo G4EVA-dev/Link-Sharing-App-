@@ -1,278 +1,307 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MobileNavBar from "@/components/mobileNavBar";
-import CustomDropdown from "@/components/customDropDown";
 import TabletNavBar from "@/components/tabletNavBar";
 import PhonePreview from "@/components/phoneView";
-
-interface LinkType {
-  platform: string;
-  url: string;
-}
+import { linkService } from "@/services/linkService";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { Link, Platform } from "@/types";
+import Toast, { ToastType } from "@/components/Toast";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaPlus, FaTrash, FaGripVertical, FaLink } from "react-icons/fa";
+import { DragDropContext, Droppable, Draggable, DropResult, DroppableProvided, DraggableProvided } from "react-beautiful-dnd";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 function Page() {
-  const [links, setLinks] = useState<LinkType[]>([{ platform: "", url: "" }]);
-  const [toastMessage, setToastMessage] = useState("");
-  const [inputErrors, setInputErrors] = useState<{ [key: number]: string }>({});
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const [links, setLinks] = useState<Link[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [toast, setToast] = useState<{ show: boolean; message: string; type: ToastType }>({
+    show: false,
+    message: "",
+    type: "info"
+  });
 
-  const handleAddLink = () => {
-    setLinks([...links, { platform: "", url: "" }]);
-  };
-
-  const handleRemoveLink = (index: number) => {
-    const updatedLinks = links.filter((_, i) => i !== index);
-    setLinks(updatedLinks);
-  };
-
-  const handlePlatformChange = (index: number, value: string) => {
-    const updatedLinks = links.map((link, i) =>
-      i === index ? { ...link, platform: value } : link
-    );
-    setLinks(updatedLinks);
-  };
-
-  const handleUrlChange = (index: number, value: string) => {
-    const updatedLinks = links.map((link, i) =>
-      i === index ? { ...link, url: value } : link
-    );
-    setLinks(updatedLinks);
-    setInputErrors({ ...inputErrors, [index]: "" });
-  };
-
-  const handleSave = () => {
-    let hasError = false;
-    const errors: { [key: number]: string } = {};
-    links.forEach((link, index) => {
-      if (!link.url) {
-        errors[index] = "can't be empty";
-        hasError = true;
-      } else if (!/^https:\/\/www\.\w+\.\w+/.test(link.url)) {
-        errors[index] = "please check the URL";
-        hasError = true;
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user) {
+        router.push('/login');
+      } else {
+        loadLinks();
       }
-    });
-    setInputErrors(errors);
-    if (!hasError) {
-      localStorage.setItem("userLinks", JSON.stringify(links));
-      setToastMessage("Links saved successfully!");
-      setTimeout(() => setToastMessage(""), 3000);
+    }
+  }, [user, authLoading, router]);
+
+  const loadLinks = async () => {
+    if (!user) return;
+    
+    setIsLoading(true);
+    setError("");
+    try {
+      const response = await linkService.getUserLinks(user.id);
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      if (response.data) {
+        setLinks(response.data);
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to load links");
+      showToast(err.message || "Failed to load links", "error");
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const handleAddLink = () => {
+    if (!user) return;
+
+    const newLink: Link = {
+      id: `temp-${Date.now()}`,
+      platform: "custom",
+      url: "",
+      userId: user.id,
+      order: links.length,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    setLinks([...links, newLink]);
+  };
+
+  const handleRemoveLink = async (id: string) => {
+    if (!user) return;
+
+    try {
+      const response = await linkService.removeLink(user.id, id);
+      if (response.error) throw new Error(response.error);
+
+      setLinks(links.filter(link => link.id !== id));
+      showToast("Link removed successfully", "success");
+    } catch (err: any) {
+      showToast(err.message || "Failed to remove link", "error");
+    }
+  };
+
+  const handleSaveLinks = async () => {
+    if (!user) return;
+
+    setIsSaving(true);
+    try {
+      const response = await linkService.saveLinks(user.id, links);
+      if (response.error) throw new Error(response.error);
+
+      showToast("Links saved successfully", "success");
+    } catch (err: any) {
+      showToast(err.message || "Failed to save links", "error");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+
+    const items = Array.from(links);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    // Update order property
+    const updatedItems = items.map((item, index) => ({
+      ...item,
+      order: index
+    }));
+
+    setLinks(updatedItems);
+  };
+
+  const showToast = (message: string, type: ToastType) => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ ...toast, show: false }), 3000);
+  };
+
+  if (authLoading || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="large" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect in useEffect
+  }
+
   return (
+    <ErrorBoundary>
     <div className="bg-bgColor h-full flex flex-col relative">
       <MobileNavBar />
       <TabletNavBar />
-      <main className="bg-bgColor p-[16px] lg:flex lg:gap-[24px] ">
-        <div className="hidden lg:block">
-          <PhonePreview />
-        </div>
+        <main className="p-[16px] lg:flex lg:gap-[24px]">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="hidden lg:block"
+          >
+            <PhonePreview links={links} isLoading={isLoading} />
+          </motion.div>
 
-        <div className="bg-white p-[24px] lg:w-full lg:p-[40px] rounded-lg shadow-md">
-          <h1 className="text-[24px] md:text-[32px] font-bold leading-[36px] md:leading-[48px] mb-[16px]">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white p-[24px] lg:w-full lg:p-[40px] rounded-lg shadow-lg"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h1 className="text-[24px] md:text-[32px] font-bold leading-[36px] md:leading-[48px]">
             Customize your links
           </h1>
-          <p className="text-[16px] text-linkPageCustomizeText font-normal leading-[24px] mb-[40px]">
-            Add/edit/remove links below and then share all your profiles with
-            the world!
-          </p>
-          <button
-            className="w-full flex justify-center gap-2 items-center py-2 px-6 border border-btnpurple text-btnpurple rounded-md font-semibold mb-[24px] hover:bg-lightPurple hover:shadow-custom-shadow"
+                <p className="text-[16px] text-linkPageCustomizeText font-normal leading-[24px]">
+                  Add/edit/remove links below and then share all your profiles with the world!
+                </p>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
             onClick={handleAddLink}
-          >
-            + Add new Link
-          </button>
+                className="bg-purple text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-buttonHover transition-colors"
+              >
+                <FaPlus />
+                <span>Add new link</span>
+              </motion.button>
+            </div>
+
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 p-3 bg-red-100 text-red-700 rounded-md"
+              >
+                {error}
+              </motion.div>
+            )}
+
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="links">
+                {(provided: DroppableProvided) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="space-y-4"
+                  >
+                    <AnimatePresence>
           {links.map((link, index) => (
-            <div
-              key={index}
-              className="w-full p-[20px] mb-[24px] bg-bgColor rounded-md shadow-sm flex flex-col gap-[16px]"
-            >
-              <div className="flex justify-between items-center">
-                <h2 className="text-[16px] text-linkGray font-semibold">
-                  Link #{index + 1}
-                </h2>
-                <button
-                  className="text-linkGray"
-                  onClick={() => handleRemoveLink(index)}
-                >
-                  Remove
-                </button>
+                        <Draggable
+                          key={link.id}
+                          draggableId={link.id}
+                          index={index}
+                        >
+                          {(provided: DraggableProvided) => (
+                            <motion.div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -20 }}
+                              className="bg-gray-50 p-4 rounded-lg border border-gray-200"
+                            >
+                              <div className="flex items-center gap-4">
+                                <div {...provided.dragHandleProps}>
+                                  <FaGripVertical className="text-gray-400 cursor-move" />
               </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-[12px] text-linkPageCustomizeText font-normal leading-[18px]">
-                  Platform
-                </label>
-                <CustomDropdown
-                  value={link.platform}
-                  onChange={(value: string) =>
-                    handlePlatformChange(index, value)
-                  }
-                />
-              </div>
-              <div className="flex flex-col gap-2 relative">
-                <label className="text-[12px] text-linkPageCustomizeText font-normal leading-[18px]">
-                  Link
-                </label>
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <FaLink className="text-purple" />
                 <input
                   type="text"
-                  placeholder="e.g. https://www.github.com/"
-                  className={`py-2 px-3 border ${
-                    inputErrors[index] ? "text-red-500 border-red-500" : "border-gray-300"
-                  } rounded-md focus:outline-none focus:shadow-custom-shadow`}
                   value={link.url}
-                  onChange={(e) => handleUrlChange(index, e.target.value)}
-                />
-                {inputErrors[index] && (
-                  <span className="absolute right-3 top-10 text-red-500 text-xs">
-                    {inputErrors[index]}
-                  </span>
+                                      onChange={(e) => {
+                                        const newLinks = [...links];
+                                        newLinks[index].url = e.target.value;
+                                        setLinks(newLinks);
+                                      }}
+                                      placeholder="Enter your link"
+                                      className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+                                    />
+                                  </div>
+                                  <select
+                                    value={link.platform}
+                                    onChange={(e) => {
+                                      const newLinks = [...links];
+                                      newLinks[index].platform = e.target.value as Platform;
+                                      setLinks(newLinks);
+                                    }}
+                                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+                                  >
+                                    <option value="custom">Custom</option>
+                                    <option value="github">GitHub</option>
+                                    <option value="twitter">Twitter</option>
+                                    <option value="linkedin">LinkedIn</option>
+                                    <option value="youtube">YouTube</option>
+                                    <option value="facebook">Facebook</option>
+                                    <option value="instagram">Instagram</option>
+                                  </select>
+                                </div>
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => handleRemoveLink(link.id)}
+                                  className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                                >
+                                  <FaTrash />
+                                </motion.button>
+                              </div>
+                            </motion.div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </AnimatePresence>
+                  </div>
                 )}
+              </Droppable>
+            </DragDropContext>
+
+            <div className="mt-8 p-4 border-t border-gray-200">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleSaveLinks}
+                disabled={isSaving}
+                className={`w-full bg-purple text-white py-3 rounded-md font-semibold transition-all duration-200 ${
+                  isSaving ? 'opacity-75 cursor-not-allowed' : 'hover:bg-buttonHover hover:shadow-custom-shadow'
+                }`}
+              >
+                {isSaving ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <LoadingSpinner size="small" />
+                    <span>Saving...</span>
               </div>
+                ) : (
+                  'Save'
+                )}
+              </motion.button>
             </div>
-          ))}
-          <div className="p-[16px] border-t border-t-1 md:flex md:justify-end border-saveborder">
-            <button
-              className="bg-purple w-full md:w-auto py-[11px] px-[27px] rounded-md text-white font-semibold hover:bg-buttonHover hover:shadow-custom-shadow"
-              onClick={handleSave}
-            >
-              Save
-            </button>
-          </div>
-        </div>
+          </motion.div>
       </main>
-      {toastMessage && (
-        <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-bgBrown text-white py-2 px-4 rounded-md shadow-lg">
-          {toastMessage}
-        </div>
-      )}
+
+        <AnimatePresence>
+          {toast.show && (
+            <Toast
+              message={toast.message}
+              type={toast.type}
+              onClose={() => setToast({ ...toast, show: false })}
+            />
+          )}
+        </AnimatePresence>
     </div>
+    </ErrorBoundary>
   );
 }
 
 export default Page;
-
-
-
-
-// "use client";
-// import React, { useState } from "react";
-// import MobileNavBar from "@/components/mobileNavBar";
-// import CustomDropdown from "@/components/customDropDown";
-// import TabletNavBar from "@/components/tabletNavBar";
-// import PhonePreview from "@/components/phoneView";
-
-// interface LinkType {
-//   platform: string;
-//   url: string;
-// }
-
-// function Page() {
-//   const [links, setLinks] = useState<LinkType[]>([{ platform: "", url: "" }]);
-
-//   const handleAddLink = () => {
-//     setLinks([...links, { platform: "", url: "" }]);
-//   };
-
-//   const handleRemoveLink = (index: number) => {
-//     const updatedLinks = links.filter((_, i) => i !== index);
-//     setLinks(updatedLinks);
-//   };
-
-//   const handlePlatformChange = (index: number, value: string) => {
-//     const updatedLinks = links.map((link, i) =>
-//       i === index ? { ...link, platform: value } : link
-//     );
-//     setLinks(updatedLinks);
-//   };
-
-//   const handleUrlChange = (index: number, value: string) => {
-//     const updatedLinks = links.map((link, i) =>
-//       i === index ? { ...link, url: value } : link
-//     );
-//     setLinks(updatedLinks);
-//   };
-
-//   const handleSave = () => {
-//     localStorage.setItem("userLinks", JSON.stringify(links));
-//     // alert("Links saved successfully!");
-//   };
-
-//   return (
-//     <div className="bg-bgColor h-full flex flex-col">
-//       <MobileNavBar />
-//       <TabletNavBar />
-//       <main className="bg-bgColor p-[16px] lg:flex lg:gap-[24px] ">
-//         <div className=" hidden lg:block ">
-//           <PhonePreview />
-//         </div>
-
-//         <div className="bg-white  p-[24px] lg:w-full lg:p-[40px] rounded-lg shadow-md  ">
-//           <h1 className="text-[24px] md:text-[32px] font-bold leading-[36px] md:leading-[48px] mb-[16px]">
-//             Customize your links
-//           </h1>
-//           <p className="text-[16px] text-linkPageCustomizeText font-normal leading-[24px] mb-[40px]">
-//             Add/edit/remove links below and then share all your profiles with
-//             the world!
-//           </p>
-//           <button
-//             className="w-full flex justify-center gap-2 items-center py-2 px-6 border border-btnpurple text-btnpurple rounded-md font-semibold mb-[24px] hover:bg-lightPurple hover:shadow-custom-shadow "
-//             onClick={handleAddLink}
-//           >
-//             + Add new Link
-//           </button>
-//           {links.map((link, index) => (
-//             <div
-//               key={index}
-//               className="w-full p-[20px] mb-[24px] bg-bgColor rounded-md shadow-sm flex flex-col gap-[16px]  "
-//             >
-//               <div className="flex justify-between items-center">
-//                 <h2 className="text-[16px] text-linkGray font-semibold">
-//                   Link #{index + 1}
-//                 </h2>
-//                 <button
-//                   className="text-linkGray"
-//                   onClick={() => handleRemoveLink(index)}
-//                 >
-//                   Remove
-//                 </button>
-//               </div>
-//               <div className="flex flex-col gap-2">
-//                 <label className="text-[12px] text-linkPageCustomizeText font-normal leading-[18px]">
-//                   Platform
-//                 </label>
-//                 <CustomDropdown
-//                   value={link.platform}
-//                   onChange={(value: string) =>
-//                     handlePlatformChange(index, value)
-//                   }
-//                 />
-//               </div>
-//               <div className="flex flex-col gap-2">
-//                 <label className="text-[12px] text-linkPageCustomizeText font-normal leading-[18px]">
-//                   Link
-//                 </label>
-//                 <input
-//                   type="text"
-//                   placeholder="e.g. https://www.github.com/"
-//                   className="py-2 px-3 border border-gray-300 rounded-md focus:border-purple focus:outline-none focus:shadow-custom-shadow  "
-//                   value={link.url}
-//                   onChange={(e) => handleUrlChange(index, e.target.value)}
-//                 />
-//               </div>
-//             </div>
-//           ))}
-//           <div className="p-[16px] border-t border-t-1 md:flex md:justify-end border-saveborder">
-//             <button
-//               className="bg-purple w-full md:w-auto py-[11px] px-[27px] rounded-md text-white font-semibold hover:bg-buttonHover hover:shadow-custom-shadow "
-//               onClick={handleSave}
-//             >
-//               Save
-//             </button>
-//           </div>
-//         </div>
-//       </main>
-//     </div>
-//   );
-// }
-
-// export default Page;

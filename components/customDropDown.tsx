@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   FaGithub,
   FaLinkedin,
@@ -9,6 +9,7 @@ import {
   FaFreeCodeCamp,
   FaDev,
   FaCode,
+  FaChevronDown,
 } from "react-icons/fa";
 
 const platformOptions = [
@@ -29,13 +30,26 @@ interface Option {
   icon: JSX.Element;
 }
 
-interface CustomDropdownProps {
+export interface CustomDropdownProps {
   value: string;
   onChange: (value: string) => void;
+  disabled?: boolean;
 }
 
-function CustomDropdown({ value, onChange }: CustomDropdownProps) {
+const CustomDropdown: React.FC<CustomDropdownProps> = ({ value, onChange, disabled = false }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSelect = (option: Option) => {
     onChange(option.value);
@@ -47,34 +61,46 @@ function CustomDropdown({ value, onChange }: CustomDropdownProps) {
   );
 
   return (
-    <div className="relative  ">
+    <div className="relative" ref={dropdownRef}>
       <button
         type="button"
-        className="w-full flex justify-between items-center py-2 px-3 border border-gray-300 rounded-md focus:border-purple focus:outline-none focus:shadow-custom-shadow "
-        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full flex justify-between items-center px-3 py-2 border border-gray-300 rounded-md ${
+          disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-purple'
+        } focus:outline-none focus:shadow-custom-shadow`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+        disabled={disabled}
       >
-        <span className="flex items-center gap-2">
-          {selectedOption ? selectedOption.icon : null}
-          {selectedOption ? selectedOption.label : "Select Platform"}
+        <span className={value ? 'text-darkGray' : 'text-gray-400'}>
+          {value ? (
+            <span className="flex items-center gap-2">
+              {selectedOption ? selectedOption.icon : null}
+              {selectedOption ? selectedOption.label : "Select Platform"}
+            </span>
+          ) : "Select platform"}
         </span>
-        <span className="ml-2">&#x25BC;</span>
+        <FaChevronDown className={`text-gray-400 transition-transform ${isOpen ? 'transform rotate-180' : ''}`} />
       </button>
-      {isOpen && (
-        <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1">
+
+      {isOpen && !disabled && (
+        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
           {platformOptions.map((option) => (
-            <li
+            <button
               key={option.value}
-              className="flex items-center gap-2 py-2 px-3 hover:bg-gray-200 cursor-pointer"
-              onClick={() => handleSelect(option)}
+              className={`w-full flex items-center gap-2 text-left px-3 py-2 hover:bg-gray-100 ${
+                value === option.value ? 'bg-gray-100' : ''
+              }`}
+              onClick={() => {
+                handleSelect(option);
+              }}
             >
               {option.icon}
               {option.label}
-            </li>
+            </button>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
-}
+};
 
 export default CustomDropdown;

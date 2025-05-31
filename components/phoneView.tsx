@@ -11,6 +11,8 @@ import {
   FaDev,
   FaCode,
 } from "react-icons/fa";
+import { Link } from '@/types';
+import LoadingSpinner from './LoadingSpinner';
 
 const platformIcons = {
   GitHub: <FaGithub style={{ color: "white" }} />,
@@ -50,116 +52,48 @@ interface UserDetailsType {
   links: LinkType[];
 }
 
-const PhonePreview: React.FC = () => {
-  const [userDetails, setUserDetails] = useState<UserDetailsType>({
-    profileImage: null,
-    firstName: "",
-    lastName: "",
-    email: "",
-    previewImage: null,
-    links: [],
-  });
+interface PhonePreviewProps {
+  links: Link[];
+  isLoading?: boolean;
+}
 
-  useEffect(() => {
-    const storedDetails = localStorage.getItem("userDetails");
-    const storedLinks = localStorage.getItem("userLinks");
-    if (storedDetails) {
-      setUserDetails((prevState) => ({
-        ...prevState,
-        ...JSON.parse(storedDetails),
-      }));
-    }
-    if (storedLinks) {
-      setUserDetails((prevState) => ({
-        ...prevState,
-        links: JSON.parse(storedLinks),
-      }));
-    }
-  }, []);
-
-  const { profileImage, firstName, lastName, email,previewImage,  links } = userDetails;
-
-  // Determine whether to show skeleton or actual content
-  const isLoading =
-    !profileImage && !firstName && !lastName && !email && !previewImage && links.length === 0;
+const PhonePreview: React.FC<PhonePreviewProps> = ({ links, isLoading = false }) => {
+  if (isLoading) {
+    return (
+      <div className="w-[307px] h-[631px] bg-white rounded-[32px] p-[16px] flex items-center justify-center">
+        <LoadingSpinner size="large" />
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white w-[560px] h-full flex justify-center items-center">
-      <div className="w-[308px] h-[632px] border-[1px] border-phoneViewBorder rounded-[53.5px] flex justify-center items-center custom-top-border">
-        <div className="w-[286px] h-[612px] p-4 border-[1px] border-phoneViewBorder rounded-[44.5px] ">
-          <div className="relative flex justify-center items-center flex-col">
-            {isLoading ? (
-              <>
-                <div className="skeleton-circle bg-gray-200 h-[96px] w-[96px] rounded-full mt-[34px]"></div>
-                <div className="name skeleton-line bg-gray-200 h-4 w-48 rounded my-2"></div>
-                <div className="email skeleton-line bg-gray-200 h-4 w-36 rounded my-2"></div>
-                <div className="links skeleton-line bg-gray-200 h-12 w-[237px] rounded mt-[56px]"></div>
-                <div className="links skeleton-rect bg-gray-200 h-10 w-[237px] rounded mt-[20px]"></div>
-                <div className="links skeleton-rect bg-gray-200 h-10 w-[237px] rounded mt-[20px]"></div>
-                <div className="links skeleton-rect bg-gray-200 h-10 w-[237px] rounded mt-[20px]"></div>
-                <div className="links skeleton-rect bg-gray-200 h-10 w-[237px] rounded mt-[20px]"></div>
-              </>
-            ) : (
-              <>
-                {previewImage ? (
-                  <Image
-                    src={previewImage}
-                    width="96" height="96"
-                    alt="Profile Preview"
+    <div className="w-[307px] h-[631px] bg-white rounded-[32px] p-[16px]">
+      <div className="w-full h-full bg-bgColor rounded-[24px] p-[32px] flex flex-col items-center">
+        <div className="w-[96px] h-[96px] rounded-full bg-gray-200 mb-[24px] relative overflow-hidden">
+          <Image
+            src="/images/profile-placeholder.svg"
+            alt="Profile"
+            fill
+            className="object-cover"
+          />
+        </div>
+        <h2 className="text-[18px] font-bold text-darkGray mb-[8px]">
+          John Doe
+        </h2>
+        <p className="text-[14px] text-grey mb-[56px]">@johndoe</p>
 
-                    className="rounded-full w-[96px] h-[96px] object-cover mt-[34px]"
-                  />
-                ) : (
-                  <div className="skeleton-circle bg-gray-200 h-[96px] w-[96px] rounded-full mt-[34px]"></div>
-                )}
-                <div className="name text-center text-lg font-bold mt-2">
-                  {firstName && lastName ? (
-                    `${firstName} ${lastName}`
-                  ) : (
-                    <div className="skeleton-line bg-gray-200 h-4 w-48 rounded mx-auto"></div>
-                  )}
-                </div>
-                <div className="email text-center text-sm mt-2">
-                  {email ? (
-                    email
-                  ) : (
-                    <div className="skeleton-line bg-gray-200 h-4 w-36 rounded mx-auto"></div>
-                  )}
-                </div>
-                <div className="links mt-[56px] w-full flex flex-col items-center gap-4">
-                  {links.length > 0 ? (
-                    links.map((link, index) => (
-                      <a
-                        key={index}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`w-full flex items-center gap-2 p-4 rounded-lg shadow-md text-white ${
-                          platformColors[link.platform]
-                        } hover:opacity-90 transition`}
-                      >
-                        {platformIcons[link.platform]}
-                        <span className="mr-auto ">{link.platform}</span>
-                        <Image
-                          src="/images/preview/mdi_arrow-right.svg"
-                          alt="Arrow"
-                          width="16"
-                          height="16"
-                        />
-                      </a>
-                    ))
-                  ) : (
-                    <>
-                      <div className="links skeleton-rect bg-gray-200 h-10 w-[237px] rounded mt-[20px]"></div>
-                      <div className="links skeleton-rect bg-gray-200 h-10 w-[237px] rounded mt-[20px]"></div>
-                      <div className="links skeleton-rect bg-gray-200 h-10 w-[237px] rounded mt-[20px]"></div>
-                      <div className="links skeleton-rect bg-gray-200 h-10 w-[237px] rounded mt-[20px]"></div>
-                    </>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
+        <div className="w-full space-y-[16px]">
+          {links.map((link, index) => (
+            <a
+              key={index}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full h-[44px] bg-white rounded-[8px] flex items-center justify-center text-[16px] font-semibold text-darkGray hover:bg-gray-50 transition-colors"
+            >
+              {link.platform || 'Custom Link'}
+            </a>
+          ))}
         </div>
       </div>
     </div>
