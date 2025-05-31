@@ -39,10 +39,6 @@ function Page() {
 
   const loadLinks = async () => {
     if (!user) return;
-
-  useEffect(() => {
-    loadLinks();
-  }, []);
     setIsLoading(true);
     setError("");
     try {
@@ -61,6 +57,10 @@ function Page() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadLinks();
+  }, [user]);
 
   const handleAddLink = () => {
     if (!user) return;

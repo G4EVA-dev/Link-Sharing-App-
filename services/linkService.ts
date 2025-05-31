@@ -9,102 +9,132 @@ import {
   doc,
   orderBy,
   setDoc,
-  writeBatch
+  writeBatch,
+  getDoc,
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from '@/firebase';
 import { Link, ApiResponse, ServiceResponse } from '@/types';
 
-class LinkService {
-  async getUserLinks(userId: string): Promise<ServiceResponse<Link[]>> {
+export const linkService = {
+  async getUserLinks(userId: string): Promise<ApiResponse<Link[]>> {
     try {
-      const linksRef = collection(db, 'links');
-      const q = query(
-        linksRef,
+      const linksQuery = query(
+        collection(db, 'links'),
         where('userId', '==', userId),
         orderBy('order', 'asc')
       );
       
-      const querySnapshot = await getDocs(q);
-      const links: Link[] = [];
-      
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        links.push({
-          id: doc.id,
-          platform: data.platform,
-          url: data.url,
-          userId: data.userId,
-          order: data.order,
-          createdAt: data.createdAt.toDate(),
-          updatedAt: data.updatedAt.toDate()
-        });
-      });
+      const snapshot = await getDocs(linksQuery);
+      const links = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        title: doc.data().title || '',
+        clicks: doc.data().clicks || 0,
+        isActive: doc.data().isActive ?? true,
+        createdAt: doc.data().createdAt?.toDate() || new Date(),
+        updatedAt: doc.data().updatedAt?.toDate() || new Date()
+      })) as Link[];
 
-      return { data: links };
+      return { success: true, data: links };
     } catch (error: any) {
-      return { error: error.message };
+      return { success: false, error: error.message };
     }
-  }
+  },
 
-  async createLink(link: Omit<Link, 'id'>): Promise<ApiResponse<Link>> {
+  async getLink(id: string): Promise<ApiResponse<Link>> {
     try {
-      const linksRef = collection(db, 'links');
-      const docRef = await addDoc(linksRef, {
+      const docRef = doc(db, 'links', id);
+      const docSnap = await getDoc(docRef);
+      
+      if (!docSnap.exists()) {
+        return { success: false, error: 'Link not found' };
+      }
+
+      const linkData = {
+        id: docSnap.id,
+        ...docSnap.data(),
+        title: docSnap.data().title || '',
+        clicks: docSnap.data().clicks || 0,
+        isActive: docSnap.data().isActive ?? true,
+        createdAt: docSnap.data().createdAt?.toDate() || new Date(),
+        updatedAt: docSnap.data().updatedAt?.toDate() || new Date()
+      } as Link;
+
+      return { success: true, data: linkData };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  },
+
+  async createLink(link: Omit<Link, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<Link>> {
+    try {
+      const newLink = {
         ...link,
+        clicks: 0,
+        isActive: true,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      };
+
+      const docRef = await addDoc(collection(db, 'links'), newLink);
+      const createdLink = {
+        id: docRef.id,
+        ...newLink,
         createdAt: new Date(),
         updatedAt: new Date()
-      });
+      } as Link;
 
-      return { 
-        data: { 
-          ...link, 
-          id: docRef.id 
-        }, 
-        loading: false 
-      };
+      return { success: true, data: createdLink };
     } catch (error: any) {
-      return { 
-        error: error.message, 
-        loading: false 
-      };
+      return { success: false, error: error.message };
     }
-  }
+  },
 
-  async updateLink(id: string, link: Partial<Link>): Promise<ApiResponse<Link>> {
+  async updateLink(id: string, updates: Partial<Link>): Promise<ApiResponse<Link>> {
     try {
       const linkRef = doc(db, 'links', id);
-      await updateDoc(linkRef, {
-        ...link,
-        updatedAt: new Date()
-      });
+      const updateData = {
+        ...updates,
+        updatedAt: serverTimestamp()
+      };
 
-      return { 
-        data: { 
-          ...link, 
-          id 
-        } as Link, 
-        loading: false 
-      };
+      await updateDoc(linkRef, updateData);
+      const updatedLink = await this.getLink(id);
+      
+      return updatedLink;
     } catch (error: any) {
-      return { 
-        error: error.message, 
-        loading: false 
-      };
+      return { success: false, error: error.message };
     }
-  }
+  },
 
   async deleteLink(id: string): Promise<ApiResponse<void>> {
     try {
-      const linkRef = doc(db, 'links', id);
-      await deleteDoc(linkRef);
-      return { loading: false };
+      await deleteDoc(doc(db, 'links', id));
+      return { success: true };
     } catch (error: any) {
-      return { 
-        error: error.message, 
-        loading: false 
-      };
+      return { success: false, error: error.message };
     }
-  }
+  },
+
+  async reorderLinks(userId: string, linkIds: string[]): Promise<ApiResponse<void>> {
+    try {
+      const batch = writeBatch(db);
+      
+      linkIds.forEach((id, index) => {
+        const linkRef = doc(db, 'links', id);
+        batch.update(linkRef, { 
+          order: index,
+          updatedAt: serverTimestamp()
+        });
+      });
+
+      await batch.commit();
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  },
 
   async saveLinks(userId: string, links: Link[]): Promise<ServiceResponse<void>> {
     try {
@@ -134,7 +164,7 @@ class LinkService {
     } catch (error: any) {
       return { error: error.message };
     }
-  }
+  },
 
   async removeLink(userId: string, linkId: string): Promise<ServiceResponse<void>> {
     try {
@@ -145,6 +175,4 @@ class LinkService {
       return { error: error.message };
     }
   }
-}
-
-export const linkService = new LinkService(); 
+}; 

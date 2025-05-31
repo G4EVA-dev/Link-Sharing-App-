@@ -34,11 +34,12 @@ export const useAuth = () => {
               email: firebaseUser.email!,
               firstName: firebaseUser.displayName?.split(' ')[0] || '',
               lastName: firebaseUser.displayName?.split(' ')[1] || '',
+              profileImage: firebaseUser.photoURL || '',
               role: 'user',
               createdAt: new Date(),
               updatedAt: new Date(),
               settings: {
-                theme: 'system',
+                theme: 'light' as const,
                 notifications: {
                   email: true,
                   push: true,

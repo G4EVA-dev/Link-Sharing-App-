@@ -1,63 +1,56 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Theme } from '@/types';
+"use client";
+
+import { useState, useEffect } from 'react';
+import { Theme } from '@/contexts/AuthContext';
 
 export const useTheme = () => {
-  const [theme, setTheme] = useState<Theme>('system');
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<Theme>('light');
+  const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
-    // Get initial theme from localStorage or system preference
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    if (savedTheme) {
-      setTheme(savedTheme);
+    // Check if theme is stored in localStorage
+    const storedTheme = localStorage.getItem('theme') as Theme | null;
+    if (storedTheme) {
+      setTheme(storedTheme);
     }
 
-    // Listen for system theme changes
+    // Check system theme preference
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setSystemTheme(mediaQuery.matches ? 'dark' : 'light');
+
+    // Listen for system theme changes
     const handleChange = (e: MediaQueryListEvent) => {
-      if (theme === 'system') {
-        setResolvedTheme(e.matches ? 'dark' : 'light');
-      }
+      setSystemTheme(e.matches ? 'dark' : 'light');
     };
 
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme]);
+  }, []);
 
   useEffect(() => {
-    // Update resolved theme based on current theme setting
-    if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light';
-      setResolvedTheme(systemTheme);
-    } else {
-      setResolvedTheme(theme);
-    }
-
-    // Update document class and localStorage
-    document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(resolvedTheme);
+    // Apply theme to document
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark');
+    
+    const effectiveTheme = theme === 'light' ? 'light' : 'dark';
+    root.classList.add(effectiveTheme);
+    
+    // Store theme preference
     localStorage.setItem('theme', theme);
-  }, [theme, resolvedTheme]);
+  }, [theme]);
 
-  const toggleTheme = useCallback(() => {
-    setTheme((current) => {
-      switch (current) {
-        case 'light':
-          return 'dark';
-        case 'dark':
-          return 'system';
-        default:
-          return 'light';
-      }
-    });
-  }, []);
+  const toggleTheme = () => {
+    setTheme((current) => (current === 'light' ? 'dark' : 'light'));
+  };
+
+  const setSystemThemePreference = () => {
+    setTheme(systemTheme);
+  };
 
   return {
     theme,
-    resolvedTheme,
-    setTheme,
+    systemTheme,
     toggleTheme,
+    setSystemThemePreference,
   };
 }; 

@@ -259,23 +259,7 @@ export default function ShowfolioLanding() {
         />
 
         <div className="relative z-10 max-w-6xl mx-auto text-center px-6">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to Link Sharing</h1>
-            <p className="text-xl text-gray-600 mb-8">Share your links with the world</p>
-            <div className="relative w-full h-64 mb-8">
-              <Image
-                src="/hero-image.jpg"
-                alt="Link Sharing Platform"
-                fill
-                className="object-cover rounded-lg"
-                priority
-              />
-            </div>
-            <p className="text-gray-600 mb-8">
-              &ldquo;The best way to share your links with the world&rdquo;
-            </p>
-          </div>
-          
+         
           <div className="mb-6 animate-fadeInUp">
             <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 text-sm text-gray-100">
               <Sparkles className="w-4 h-4 text-purple-300" />
@@ -293,7 +277,7 @@ export default function ShowfolioLanding() {
             </span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-gray-200 mb-12 max-w-3xl mx-auto animate-fadeInUp-delay-400 leading-relaxed">
+          <p className="text-xl md:text-2xl px-3 text-gray-200 mb-12 max-w-3xl mx-auto animate-fadeInUp-delay-400 leading-relaxed">
             Connect all your social platforms, showcase your best work, and share your story through one beautiful, professional link.
           </p>
           
@@ -437,6 +421,8 @@ export default function ShowfolioLanding() {
                       src={testimonial.image}
                       alt={testimonial.name}
                       className="w-12 h-12 rounded-full mr-4 group-hover:scale-110 transition-transform duration-300"
+                      width={48}
+                      height={48}
                     />
                     <div>
                       <h4 className="font-semibold text-white group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-pink-300 group-hover:bg-clip-text transition-all duration-300">

@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth, db } from '@/firebase';
-import { User } from '@/types';
+import { User, Team, TeamMember, ApiResponse } from '@/types';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { 
   doc, 
@@ -22,8 +22,24 @@ import {
   sendPasswordResetEmail,
   updateProfile
 } from 'firebase/auth';
-import { Team, TeamMember, ApiResponse } from '@/types';
 import { useToast } from '@/hooks/useToast';
+
+export type Theme = 'light' | 'dark' | 'system';
+
+interface UserSettings {
+  theme: Theme;
+  notifications: {
+    email: boolean;
+    push: boolean;
+    marketing: boolean;
+    updates: boolean;
+  };
+  privacy: {
+    profileVisibility: 'public' | 'private';
+    showAnalytics: boolean;
+    allowIndexing: boolean;
+  };
+}
 
 interface AuthContextType {
   user: User | null;
@@ -41,6 +57,31 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const defaultUser: User = {
+  id: '',
+  email: '',
+  firstName: '',
+  lastName: '',
+  role: 'user',
+  profileImage: '',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  settings: {
+    theme: 'light',
+    notifications: {
+      email: true,
+      push: true,
+      marketing: false,
+      updates: true
+    },
+    privacy: {
+      profileVisibility: 'public',
+      showAnalytics: true,
+      allowIndexing: true
+    }
+  },
+};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -118,10 +159,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         firstName,
         lastName,
         role: 'user',
+        profileImage: '',
         createdAt: new Date(),
         updatedAt: new Date(),
         settings: {
-          theme: 'system',
+          theme: 'light',
           notifications: {
             email: true,
             push: true,
